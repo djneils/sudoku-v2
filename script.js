@@ -1,6 +1,6 @@
 let boardWidth, cellWidth, c
 let midOffSet = 0
-let currentSudoku=null
+let currentSudoku = null
 let answers
 let inp
 let textScale
@@ -17,16 +17,16 @@ function preload() {
 function setup() {
   c = createCanvas(windowHeight, windowWidth)
   createSlider(0, 100, 2)
-  //console.log(width, height)
+
   boardWidth = min(width, height)
   cellWidth = boardWidth / 9
- 
+
 
   textFont(f)
   textAlign(CENTER, CENTER)
   windowResized()
   inp = new Input()
-  textScale = map(width, 250, 1200, 10, 75)
+  textScale = map(width, 250, 1200, 10, 65)
   message = 'CREATE NEW GAME \n 1 Easy - 5 Hard'
 }
 
@@ -39,7 +39,7 @@ function keyReleased() {
   }
 }
 function keyPressed() {
-  //console.log(screen, keyCode)
+
   if (screen == 0 && (keyCode >= 49 && keyCode <= 53)) {
 
     currentSudoku = generateSudoku(keyCode - 48)
@@ -123,17 +123,17 @@ function windowResized() {
 function draw() {
   if (screen == 0) {
     background(140)
-    
+
     drawGrid(midOffSet, 25)
     fill(0)
-    textScale = map(width, 250, 1200, 10, 75)
+    textScale = map(width, 250, 1200, 10, 65)
     textSize(textScale)
 
     text(message, width / 2, height / 2)
 
   }
   if (screen == 1) {
-    textScale = map(width, 250, 1200, 10, 75)
+    textScale = map(width, 250, 1200, 10, 65)
     background(140)
     inp.display()
     drawGrid(midOffSet, 255)

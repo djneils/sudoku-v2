@@ -10,8 +10,23 @@ let wrongPositions = []
 let f
 let screen = 0
 let message
+let mx, my
+
 function preload() {
   f = loadFont('f.ttf')
+}
+
+function mouseReleased() {
+  let r = floor(mouseY / cellWidth)
+  let c = floor((mouseX - midOffSet) / cellWidth)
+  // if(inp.row == r && inp.col==c){
+
+  // }
+  if (inp.life < 30 && screen == 1 ) {
+    inp.setValue(inp.value)
+    inp.active = true
+    inp.life = 25
+  }
 }
 
 function setup() {
@@ -137,7 +152,7 @@ function draw() {
     background(140)
     inp.display()
     drawGrid(midOffSet, 255)
-
+    inp.mouseSelection()
     cellWidth = boardWidth / 9
     if (width - 50 > boardWidth) {
       midOffSet = (width - boardWidth) / 2
@@ -158,6 +173,8 @@ function draw() {
 }
 
 function mousePressed() {
+  mx = mouseX
+  my = mouseY
   if (screen == 1) {
     inp.lock(mouseX - midOffSet, mouseY)
   }

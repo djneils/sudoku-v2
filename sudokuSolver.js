@@ -5,6 +5,12 @@ function solveSudoku(arr) {
   return false
 
 }
+function solveDemoSudoku(arr) {
+  let solved = copySudoku(arr)
+  if (solve(solved)) return solved
+  return false
+
+}
 
 function areEqual(ans, cur, sol) {
   for (let r = 0; r < 9; r++) {
@@ -14,7 +20,7 @@ function areEqual(ans, cur, sol) {
       }
     }
   }
-  
+
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
       if (cur[r][c] != sol[r][c]) {
@@ -36,7 +42,40 @@ function checkForDifferences(ans, sol) {
   }
 
 }
+function generateOriginalSudoku() {
 
+
+  let empty = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0]
+  ]
+
+  let solution = solveSudoku(empty)
+  let problem = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0]
+  ]
+
+
+  return {
+    problem: problem,
+    solution: solution
+  }
+}
 
 function generateSudoku(difficulty) {
   let d = map(difficulty, 1, 5, 30, 150)
@@ -87,6 +126,15 @@ function copySudoku(arr) {
   return copy
 }
 
+function merge(a1, a2) {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (a1[r][c] != 0) {
+        a2[r][c] = a1[r][c]
+      }
+    }
+  }
+}
 function solve(arr) {
   for (let y = 0; y < 9; y++) {
     for (let x = 0; x < 9; x++) {
@@ -96,10 +144,44 @@ function solve(arr) {
         nums = shuffle(nums)//p5 function!
         for (let n = 1; n < 10; n++) {
           let nn = nums.pop()
+          if (screen == 3) nn = n
           if (possible(arr, y, x, nn)) {
             arr[y][x] = nn
-            if (solve(arr)) return true
-            else arr[y][x] = 0
+            arrays.push(copySudoku(arr))
+
+            if (solve(arr)) {
+              return true
+            } else {
+              arr[y][x] = 0
+              arrays.push(copySudoku(arr))
+            }
+
+          }
+        }
+        return false
+      }
+    }
+  }
+  return true
+}
+
+function solve2(arr) {
+
+  for (let y = 0; y < 9; y++) {
+    for (let x = 0; x < 9; x++) {
+      if (arr[y][x] == 0) {
+
+        for (let n = 1; n < 10; n++) {
+
+          if (possible(arr, y, x, n)) {
+            arr[y][x] = n
+            arrays.push(copySudoku(arr))
+            if (solve(arr)) {
+              return true
+            } else {
+              arr[y][x] = 0
+              arrays.push(copySudoku(arr))
+            }
           }
         }
         return false

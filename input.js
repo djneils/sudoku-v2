@@ -31,10 +31,10 @@ class Input {
   }
 
   mouseSelection() {
-    let r = floor(mouseY / cellWidth)
-    let c = floor((mouseX - midOffSet) / cellWidth)
-    let v = currentSudoku.problem[r][c] == 0
-    if (mouseIsPressed && v) {
+    // let r = floor(my / cellWidth)
+    // let c = floor((mx - midOffSet) / cellWidth)
+    // let v = currentSudoku.problem[r][c] == 0
+    if (mouseIsPressed ) {
       fill(0, 255, 255)
 
       textAlign(CENTER, CENTER)

@@ -1,3 +1,5 @@
+
+let arrays = []
 let boardWidth, cellWidth, c
 let midOffSet = 0
 let currentSudoku = null
@@ -11,7 +13,9 @@ let f
 let screen = 0
 let message
 let mx, my
-
+let grid = []
+let startGrid = []
+let saveMode = true
 function preload() {
   f = loadFont('f.ttf')
 }
@@ -22,7 +26,7 @@ function mouseReleased() {
   // if(inp.row == r && inp.col==c){
 
   // }
-  if (inp.life < 30 && screen == 1 ) {
+  if (inp.life < 30 && screen == 1) {
     inp.setValue(inp.value)
     inp.active = true
     inp.life = 25
@@ -42,7 +46,7 @@ function setup() {
   windowResized()
   inp = new Input()
   textScale = map(width, 250, 1200, 10, 65)
-  message = 'CREATE NEW GAME \n 1 Easy - 5 Hard'
+  message = 'CREATE NEW GAME \n 1 Easy - 5 Hard \n 0 for blank'
 }
 
 function keyReleased() {
@@ -55,10 +59,17 @@ function keyReleased() {
 }
 function keyPressed() {
 
-  if (screen == 0 && (keyCode >= 49 && keyCode <= 53)) {
+  if (screen == 0 && (keyCode >= 48 && keyCode <= 53)) {
+    if (keyCode == 48) {
+      currentSudoku = generateOriginalSudoku()
+      answers = copySudoku(empty)
+      screen = 1
 
+      return
+    }
     currentSudoku = generateSudoku(keyCode - 48)
     answers = copySudoku(empty)
+    //saveJSON(currentSudoku,'save.json')
     screen = 1
     return
   }
@@ -81,7 +92,20 @@ function keyPressed() {
       message = 'NOT THERE YET'
     }
   }
+  if (key == 'D' || key == 'd') {
+    if (currentSudoku == null) return
+    screen = 3
 
+
+    grid = copySudoku(currentSudoku.problem)
+    merge(answers, grid)
+    startGrid = copySudoku(currentSudoku.problem)
+    merge(answers, startGrid)
+    arrays = []
+    solveSudoku(grid)
+    //console.log(arrays)
+    return
+  }
   if (key == 'C' || key == 'c') {
     clues.push(new Clue(mouseX - midOffSet, mouseY))
     return
@@ -89,12 +113,13 @@ function keyPressed() {
 
   if (key == 'M' || key == 'm') {
     screen = (screen + 1) % 2
-    message = 'CREATE NEW GAME \n 1 Easy - 5 Hard'
+    message = 'CREATE NEW GAME \n 1 Easy - 5 Hard \n 0 for blank'
   }
 
   if (key == 'K' || key == 'k') {
+    if (currentSudoku == null) return
     screen = (screen + 1) % 2
-    message = 'c for a clue \n s to see solution \n z to count mistakes \n x to check answers \n = to see if solved \p = to take picture'
+    message = 'c for a clue \n s to see solution \n z to count mistakes \n x to check answers \n = to see if solved \n p to take picture \n d to enter backtracking demo mode'
   }
 
   if (key == 'S' || key == 's') {
@@ -138,6 +163,7 @@ function windowResized() {
 function draw() {
   if (screen == 0) {
     background(140)
+    frameRate(60)
 
     drawGrid(midOffSet, 25)
     fill(0)
@@ -148,6 +174,7 @@ function draw() {
 
   }
   if (screen == 1) {
+    frameRate(60)
     textScale = map(width, 250, 1200, 10, 65)
     background(140)
     inp.display()
@@ -170,6 +197,26 @@ function draw() {
       square(pos.c * cellWidth + midOffSet, pos.r * cellWidth, cellWidth)
     }
   }
+  if (screen == 3) {
+    frameRate(map(mouseX, 0, width, 0, 60))
+    textScale = map(width, 250, 1200, 10, 65)
+    background(140)
+    drawGridDemo(midOffSet, 255)
+    if (arrays.length > 0) {
+      if (arrays.length == 1) {
+        currentSudoku.problem = arrays.shift()
+        grid = currentSudoku.problem
+      } else {
+        grid = arrays.shift()
+      }
+
+      //var newGrid =arrays.shift()
+      //grid = merge(grid,newGrid)
+      //console.log(current)
+      // merge(current,grid)
+
+    }
+  }
 }
 
 function mousePressed() {
@@ -180,6 +227,50 @@ function mousePressed() {
   }
 
 }
+
+
+function drawGridDemo(xOffSet, t) {
+  if (grid.length == 0) return
+  strokeWeight(4)
+  stroke(0, t)
+  line(xOffSet, 0, boardWidth + xOffSet, 0)
+  line(xOffSet, 0, xOffSet, boardWidth)
+  line(boardWidth + xOffSet, 0, boardWidth + xOffSet, boardWidth)
+  line(xOffSet, boardWidth, boardWidth + xOffSet, boardWidth)
+  for (let row = 0; row < 9; row++) {
+    if (row % 3 == 0 && row != 0) {
+      strokeWeight(textScale / 8)
+    } else {
+      strokeWeight(1)
+    }
+    if (row != 0) {
+      line(xOffSet, row * cellWidth, boardWidth + xOffSet, row * cellWidth)
+      line(row * cellWidth + xOffSet, 0, row * cellWidth + xOffSet, boardWidth)
+    }
+    if (grid) {
+      for (let col = 0; col < 9; col++) {
+
+        fill(0)
+        strokeWeight(1)
+        if (grid[row][col] != 0) {
+          textSize(textScale)
+          if (startGrid[row][col] != 0) {
+            fill(0, 0, 255)
+          } else {
+            fill(0)
+          }
+
+          text(grid[row][col], xOffSet + (cellWidth / 2) + (col * cellWidth), (cellWidth / 2) + (row * cellWidth))
+        }
+
+
+      }
+    }
+  }
+
+
+}
+
 
 
 

@@ -1,17 +1,11 @@
-// function solve(arr) {
-//   for (let y = 0; y < 9; y++) {
-//     for (let x = 0; x < 9; x++) {
-//       if (arr[y][x] == 0) {
-//         for (let n = 1; n < 10; n++) {
-//           if (possible(arr, y, x, n)) {
-//             arr[y][x] = n
-//             if (solve(arr)) return true
-//             else arr[y][x] = 0
-//           }
-//         }
-//         return false
-//       }
-//     }
-//   }
-//   return true
-// }
+keys
+
+M return to menu to choose new game
+k show keys
+press c over a cell for a clue
+s to show solution
+click on cell and drag left/right to enter value
+click and type keys works too. esc is delete
+x to check for errors
+= to check if solved
+d for demo backtracking solution - mouseX controls framerate

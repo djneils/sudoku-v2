@@ -16,8 +16,18 @@ let mx, my
 let grid = []
 let startGrid = []
 let saveMode = true
+let pause = false
+let boxWidth = 0
+let boxHeight = 0
+let boxNum = 0
+let showLogo = true
+let logo
+let record = false
+
+
 function preload() {
   f = loadFont('f.ttf')
+  logo = loadImage('logo.png')
 }
 
 function mouseReleased() {
@@ -35,7 +45,7 @@ function mouseReleased() {
 
 function setup() {
   c = createCanvas(windowHeight, windowWidth)
-  createSlider(0, 100, 2)
+  
 
   boardWidth = min(width, height)
   cellWidth = boardWidth / 9
@@ -47,6 +57,8 @@ function setup() {
   inp = new Input()
   textScale = map(width, 250, 1200, 10, 65)
   message = 'CREATE NEW GAME \n 1 Easy - 5 Hard \n 0 for blank'
+  boxWidth = map(width, 250, 1200, 110, 600)
+  boxHeight = map(height, 250, 1200, 110, 600)
 }
 
 function keyReleased() {
@@ -61,7 +73,13 @@ function keyPressed() {
 
   if (screen == 0 && (keyCode >= 48 && keyCode <= 53)) {
     if (keyCode == 48) {
-      currentSudoku = generateOriginalSudoku()
+      currentSudoku = {
+        problem: [],
+        solution: []
+      }
+
+      currentSudoku.solution = copySudoku(empty)
+      currentSudoku.problem = copySudoku(empty)
       answers = copySudoku(empty)
       screen = 1
 
@@ -73,7 +91,7 @@ function keyPressed() {
     screen = 1
     return
   }
-
+  if (currentSudoku == null) return
   if ((keyCode >= 49 && keyCode <= 57) || keyCode == 27) {
     if (keyCode == 27) {
       inp.setValue(0)
@@ -96,43 +114,83 @@ function keyPressed() {
     if (currentSudoku == null) return
     screen = 3
 
+    // let t1 = copySudoku(currentSudoku.problem)
+    // merge(answers, t1)
+    record = false
+    //console.log(answers)
+    //console.log('xxx',solveSudoku(t1))
+    // if(!solveSudoku(t1)){
+    //   alert('unsolvable')
+    //   screen=1
+    //   return
+    // }
 
     grid = copySudoku(currentSudoku.problem)
     merge(answers, grid)
     startGrid = copySudoku(currentSudoku.problem)
     merge(answers, startGrid)
     arrays = []
-    solveSudoku(grid)
+
+
+    record = true
+    if(!allEntriesValid(grid)){
+      alert('not valid')
+    }else{
+      solveSudoku(grid)
+    }
+    //solveSudoku(grid)
+    record=false
+
     //console.log(arrays)
     return
   }
-  if (key == 'C' || key == 'c') {
+  if (screen != 3 && (key == 'C' || key == 'c')) {
     clues.push(new Clue(mouseX - midOffSet, mouseY))
     return
   }
 
   if (key == 'M' || key == 'm') {
+    arrays = []///////////
     screen = (screen + 1) % 2
     message = 'CREATE NEW GAME \n 1 Easy - 5 Hard \n 0 for blank'
+    boxWidth = map(width, 250, 1200, 110, 600)
+    boxHeight = map(height, 250, 1200, 110, 600)
+    boxNum = 0
+    return
   }
 
   if (key == 'K' || key == 'k') {
     if (currentSudoku == null) return
+    arrays = []///////////
     screen = (screen + 1) % 2
-    message = 'c for a clue \n s to see solution \n z to count mistakes \n x to check answers \n = to see if solved \n p to take picture \n d to enter backtracking demo mode'
+    message = 'c - clue \n s - see solution \n z - count mistakes \n x - check answers \n = - see if solved \n p - take picture \n d - backtracking demo mode \n m - menu \n k - key menu'
+    boxWidth = map(width, 250, 1200, 110, 800)
+    boxHeight = map(height, 250, 1000, 210, 1000)
+    boxNum = 1
+    return
   }
 
-  if (key == 'S' || key == 's') {
+  if (screen != 3 && (key == 'S' || key == 's')) {
+    if (currentSudoku == null) return
     showSolution = true
   }
-  if (key == 'P' || key == 'p') {
+  if (screen != 3 && (key == 'P' || key == 'p')) {
+    if (currentSudoku == null) return
     saveCanvas(c, 'sudoku.png')
   }
-  if (key == 'X' || key == 'x') {
+  if (screen == 3 && (key == 'P' || key == 'p')) {
+    if (pause) {
+      noLoop()
+    } else {
+      loop()
+    }
+    pause = !pause
+  }
+  if (screen != 3 && (key == 'X' || key == 'x')) {
     checkForDifferences(answers, currentSudoku.solution)
   }
 
-  if (key == 'Z' || key == 'z') {
+  if (screen != 3 && (key == 'Z' || key == 'z')) {
     checkForDifferences(answers, currentSudoku.solution)
     screen = (screen + 1) % 2
     let errors = wrongPositions.length
@@ -157,25 +215,45 @@ function windowResized() {
     midOffSet = (width - boardWidth) / 2
   }
   textScale = map(width, 250, 1200, 10, 65)
+  if (boxNum == 0) {
+    boxWidth = map(width, 250, 1200, 110, 600)
+    boxHeight = map(height, 250, 1200, 110, 600)
+  } else {
+    boxWidth = map(width, 250, 1200, 110, 800)
+    boxHeight = map(height, 250, 1000, 210, 1000)
+  }
 }
 
 
 function draw() {
   if (screen == 0) {
     background(140)
+
     frameRate(60)
 
     drawGrid(midOffSet, 25)
-    fill(0)
-    textScale = map(width, 250, 1200, 10, 65)
+
+    textScale = map(width, 250, 1000, 10, 45)
     textSize(textScale)
-
+    rectMode(CENTER)
+    fill(50, 227, 224, 120)
+    stroke(0)
+    strokeWeight(3)
+    rect(midOffSet + boardWidth / 2, boardWidth / 2, boxWidth, boxHeight)
+    rectMode(CORNER)
+    strokeWeight(1)
+    fill(0)
     text(message, width / 2, height / 2)
+    imageMode(CENTER)
+    if (showLogo) {
+      image(logo, midOffSet + boardWidth / 2, height / 6, boardWidth * 0.7, boardWidth * 0.3)
 
+    }
   }
   if (screen == 1) {
+    showLogo = false
     frameRate(60)
-    textScale = map(width, 250, 1200, 10, 65)
+     textScale = map(width, 250, 1100, 10, 55)
     background(140)
     inp.display()
     drawGrid(midOffSet, 255)
@@ -192,20 +270,22 @@ function draw() {
     }
     for (let pos of wrongPositions) {
       noFill()
-      stroke(255, 0, 0)
+      stroke(212, 32, 74)
       strokeWeight(3)
       square(pos.c * cellWidth + midOffSet, pos.r * cellWidth, cellWidth)
     }
   }
   if (screen == 3) {
-    frameRate(map(mouseX, 0, width, 0, 60))
+    frameRate(map(mouseX, 0, width, 1, 60))
     textScale = map(width, 250, 1200, 10, 65)
     background(140)
     drawGridDemo(midOffSet, 255)
     if (arrays.length > 0) {
       if (arrays.length == 1) {
         currentSudoku.problem = arrays.shift()
+        currentSudoku.solution = solveSudoku(currentSudoku.problem)
         grid = currentSudoku.problem
+        arraus=[]
       } else {
         grid = arrays.shift()
       }
@@ -231,6 +311,9 @@ function mousePressed() {
 
 function drawGridDemo(xOffSet, t) {
   if (grid.length == 0) return
+
+  fill(217, 35, 196, 50)
+  rect(midOffSet, 0, boardWidth, boardWidth)
   strokeWeight(4)
   stroke(0, t)
   line(xOffSet, 0, boardWidth + xOffSet, 0)
@@ -255,7 +338,8 @@ function drawGridDemo(xOffSet, t) {
         if (grid[row][col] != 0) {
           textSize(textScale)
           if (startGrid[row][col] != 0) {
-            fill(0, 0, 255)
+            fill(19, 162, 209)
+            //fill(255,0,0)
           } else {
             fill(0)
           }
@@ -275,7 +359,8 @@ function drawGridDemo(xOffSet, t) {
 
 
 function drawGrid(xOffSet, t) {
-
+  fill(36, 171, 169, 50)
+  rect(midOffSet, 0, boardWidth, boardWidth)
   strokeWeight(4)
   stroke(0, t)
   line(xOffSet, 0, boardWidth + xOffSet, 0)
@@ -304,7 +389,8 @@ function drawGrid(xOffSet, t) {
         }
         if (answers[row][col] != 0) {
           textSize(textScale)
-          fill(0, 0, 255, t)
+          // fill(0, 0, 255, t)
+          fill(19, 162, 209, t)
           text(answers[row][col], xOffSet + (cellWidth / 2) + (col * cellWidth), (cellWidth / 2) + (row * cellWidth))
         }
         if (showSolution && currentSudoku.problem[row][col] == 0) {

@@ -1,8 +1,12 @@
 
 function solveSudoku(arr) {
   let solved = copySudoku(arr)
-  if (solve(solved)) return solved
-  return false
+  if (solve(solved)) {
+    return solved
+  } else {
+    return false
+  }
+
 
 }
 function solveDemoSudoku(arr) {
@@ -147,13 +151,13 @@ function solve(arr) {
           if (screen == 3) nn = n
           if (possible(arr, y, x, nn)) {
             arr[y][x] = nn
-            arrays.push(copySudoku(arr))
+            if (record) arrays.push(copySudoku(arr))
 
             if (solve(arr)) {
               return true
             } else {
               arr[y][x] = 0
-              arrays.push(copySudoku(arr))
+              if (record) arrays.push(copySudoku(arr))
             }
 
           }
@@ -175,12 +179,12 @@ function solve2(arr) {
 
           if (possible(arr, y, x, n)) {
             arr[y][x] = n
-            arrays.push(copySudoku(arr))
+            if (record) arrays.push(copySudoku(arr))
             if (solve(arr)) {
               return true
             } else {
               arr[y][x] = 0
-              arrays.push(copySudoku(arr))
+              if (record) arrays.push(copySudoku(arr))
             }
           }
         }
@@ -208,4 +212,22 @@ function possible(arr, y, x, n) {
   return true
 }
 
+
+function allEntriesValid(arr) {
+  let a = copySudoku(arr)
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (a[r][c] != 0) {
+        let temp = arr[r][c]
+        a[r][c] = 0
+        if (!possible(a, r, c, temp)) {
+          return false
+        }
+        a[r][c] = temp
+      }
+
+    }
+  }
+  return true
+}
 
